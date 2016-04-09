@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 
 /*
@@ -24,8 +25,7 @@ import java.util.logging.Logger;
  */
 public class OrderJFrame extends javax.swing.JFrame {
 
-    private static int cust_id = 222;
-    private static int order_id = 1221;
+    
     LinkedList<Customer> myCustomers = new LinkedList<>();
     LinkedList<Order> myOrders = new LinkedList<>();
     
@@ -191,7 +191,7 @@ public class OrderJFrame extends javax.swing.JFrame {
             }
         });
 
-        spnrQuantity.setModel(new javax.swing.SpinnerNumberModel(0, 0, 5, 1));
+        spnrQuantity.setModel(new javax.swing.SpinnerNumberModel(1, 1, 5, 1));
         spnrQuantity.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 spnrQuantityStateChanged(evt);
@@ -201,7 +201,7 @@ public class OrderJFrame extends javax.swing.JFrame {
         cmbxProduct.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Algebra 101", "Computer Science 101", "Biology 101", "English 101", "History 101", "Political Science 101" }));
 
         lblTotal.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
-        lblTotal.setText("$0.00");
+        lblTotal.setText("$50.0");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -343,13 +343,18 @@ public class OrderJFrame extends javax.swing.JFrame {
             createCustomer(conn);
         } catch (SQLException ex) {
             Logger.getLogger(OrderJFrame.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.print("Error Creating Customer");
         }
         
         try {
             createOrder(conn);
         } catch (SQLException ex) {
             Logger.getLogger(OrderJFrame.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.print("Error Creating Order");
         }
+        
+        JOptionPane.showMessageDialog(null,"Thank You for your order "+ txtFirstName.getText() +"!");
+        clearScreen();
     }//GEN-LAST:event_btnSubmitActionPerformed
 
     private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
@@ -369,7 +374,7 @@ public class OrderJFrame extends javax.swing.JFrame {
         txtCity.setText("");
         txtState.setText("");
         txtZipCode.setText("");
-        spnrQuantity.setValue(0);
+        spnrQuantity.setValue(1);
         lblTotal.setText("$"+50.00 * (int)spnrQuantity.getValue());
     }
     
@@ -406,6 +411,7 @@ public class OrderJFrame extends javax.swing.JFrame {
         
         
         try {
+        int cust_id = getLastCustomer(conn);
         ++cust_id;
         pstmt.setInt(1, cust_id);
         pstmt.setString(2, aCustomer.getFirstName());
@@ -430,9 +436,10 @@ public class OrderJFrame extends javax.swing.JFrame {
         PreparedStatement pstmt = conn.prepareStatement(INSERT);
         
         try {
+        int order_id = getLastOrder(conn);
         ++order_id;
         pstmt.setInt(1, order_id);
-        pstmt.setInt(2, cust_id);
+        pstmt.setInt(2, getLastCustomer(conn));
         pstmt.setString(3, aOrder.getProductDescription());
         pstmt.setInt(4, aOrder.getQuantity());
         pstmt.setDate(5, new java.sql.Date(System.currentTimeMillis()));
@@ -444,6 +451,54 @@ public class OrderJFrame extends javax.swing.JFrame {
             pstmt.close();
         }
         
+    }
+     
+     
+     public static int getLastCustomer(Connection conn) throws SQLException {
+        String SQL = "select max(customer_id) from CUSTOMER_TB";
+        int custID = 0;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+         try {
+            pstmt =  conn.prepareStatement(SQL);
+         rs = pstmt.executeQuery();
+        
+        while(rs.next()) {
+            custID = rs.getInt(1);
+            System.out.println(rs.getInt(1));
+        }
+        
+         } catch (Exception e) {
+             
+         } finally {
+             pstmt.close();
+             rs.close(); 
+         }
+         
+        return custID;
+    }
+     public static int getLastOrder(Connection conn) throws SQLException {
+        String SQL = "select max(order_id) from ORDER_TB";
+        int orderID = 0;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+         try {
+            pstmt =  conn.prepareStatement(SQL);
+         rs = pstmt.executeQuery();
+        
+        while(rs.next()) {
+            orderID = rs.getInt(1);
+            System.out.println(rs.getInt(1));
+        }
+        
+         } catch (Exception e) {
+             
+         } finally {
+             pstmt.close();
+             rs.close(); 
+         }
+         
+        return orderID;
     }
      
      public static Connection getConnection() {
