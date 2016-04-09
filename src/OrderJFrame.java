@@ -95,18 +95,6 @@ public class OrderJFrame extends javax.swing.JFrame {
         jLabel7.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
         jLabel7.setText("Zip Code");
 
-        txtFirstName.setText("jTextField1");
-
-        txtLastName.setText("jTextField1");
-
-        txtAddress.setText("jTextField1");
-
-        txtCity.setText("jTextField1");
-
-        txtState.setText("jTextField1");
-
-        txtZipCode.setText("jTextField1");
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -204,11 +192,16 @@ public class OrderJFrame extends javax.swing.JFrame {
         });
 
         spnrQuantity.setModel(new javax.swing.SpinnerNumberModel(0, 0, 5, 1));
+        spnrQuantity.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                spnrQuantityStateChanged(evt);
+            }
+        });
 
         cmbxProduct.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Algebra 101", "Computer Science 101", "Biology 101", "English 101", "History 101", "Political Science 101" }));
 
         lblTotal.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
-        lblTotal.setText("jLabel13");
+        lblTotal.setText("$0.00");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -336,6 +329,7 @@ public class OrderJFrame extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new OrderJFrame().setVisible(true);
+              
             }
         });
         
@@ -362,6 +356,11 @@ public class OrderJFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
         clearScreen();
     }//GEN-LAST:event_btnClearActionPerformed
+
+    private void spnrQuantityStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_spnrQuantityStateChanged
+        // TODO add your handling code here:
+        lblTotal.setText("$" + (50.00 * (int)spnrQuantity.getValue()));
+    }//GEN-LAST:event_spnrQuantityStateChanged
 
     public void clearScreen(){
         txtFirstName.setText("");
