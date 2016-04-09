@@ -14,6 +14,11 @@ public class Order {
     private int quantity;
     private double orderTotal;
 
+    public Order() {
+    }
+    
+    
+
     public Order(String productDescription, int quantity, double orderTotal) {
         this.productDescription = productDescription;
         this.quantity = quantity;

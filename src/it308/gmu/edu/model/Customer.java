@@ -17,6 +17,9 @@ public class Customer {
     private String state;
     private String zipCode;
 
+    public Customer() {
+    }
+
     
     public Customer(String firstName, String lastName, String address, String city, String state, String zipCode) {
         this.firstName = firstName;
