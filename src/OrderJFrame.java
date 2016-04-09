@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import java.util.Properties;
 import java.sql.ResultSet;
 import java.sql.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /*
@@ -22,8 +24,8 @@ import java.sql.Date;
  */
 public class OrderJFrame extends javax.swing.JFrame {
 
-    private static int cust_id = 100;
-    private static int order_id = 1000;
+    private static int cust_id = 222;
+    private static int order_id = 1221;
     LinkedList<Customer> myCustomers = new LinkedList<>();
     LinkedList<Order> myOrders = new LinkedList<>();
     
@@ -195,6 +197,11 @@ public class OrderJFrame extends javax.swing.JFrame {
         });
 
         btnClear.setText("Clear Order");
+        btnClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnClearActionPerformed(evt);
+            }
+        });
 
         spnrQuantity.setModel(new javax.swing.SpinnerNumberModel(0, 0, 5, 1));
 
@@ -272,20 +279,19 @@ public class OrderJFrame extends javax.swing.JFrame {
         jSplitPane1.setRightComponent(jPanel2);
 
         jLabel9.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
+        jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel9.setText("Product Ordering System");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jSplitPane1)
-                .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel9)
-                .addGap(298, 298, 298))
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jSplitPane1))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -298,12 +304,6 @@ public class OrderJFrame extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
-        // TODO add your handling code here:
-        createCustomer();
-        createOrder();
-    }//GEN-LAST:event_btnSubmitActionPerformed
 
     /**
      * @param args the command line arguments
@@ -339,10 +339,42 @@ public class OrderJFrame extends javax.swing.JFrame {
             }
         });
         
-        Connection conn = getConnection();
+        
     }
     
-    public void createCustomer(){
+    private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
+        // TODO add your handling code here:
+        Connection conn = getConnection();
+        try {
+            createCustomer(conn);
+        } catch (SQLException ex) {
+            Logger.getLogger(OrderJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        try {
+            createOrder(conn);
+        } catch (SQLException ex) {
+            Logger.getLogger(OrderJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnSubmitActionPerformed
+
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+        // TODO add your handling code here:
+        clearScreen();
+    }//GEN-LAST:event_btnClearActionPerformed
+
+    public void clearScreen(){
+        txtFirstName.setText("");
+        txtLastName.setText("");
+        txtAddress.setText("");
+        txtCity.setText("");
+        txtState.setText("");
+        txtZipCode.setText("");
+        spnrQuantity.setValue(0);
+        lblTotal.setText("$"+50.00 * (int)spnrQuantity.getValue());
+    }
+    
+    public void createCustomer(Connection conn) throws SQLException{
         Customer aCustomer = new Customer();
         aCustomer.setFirstName(txtFirstName.getText());
         aCustomer.setLastName(txtLastName.getText());
@@ -352,9 +384,11 @@ public class OrderJFrame extends javax.swing.JFrame {
         aCustomer.setZipCode(txtZipCode.getText());
        
         myCustomers.add(aCustomer);
+        
+        insertCustomer(aCustomer, conn);
     }
     
-    public void createOrder(){
+    public void createOrder(Connection conn) throws SQLException{
         Order aOrder = new Order();
         System.out.print(spnrQuantity.getValue());
         aOrder.setOrderTotal(50.00 * (int)spnrQuantity.getValue());
@@ -362,23 +396,25 @@ public class OrderJFrame extends javax.swing.JFrame {
         aOrder.setQuantity((int) spnrQuantity.getValue());
         
         myOrders.add(aOrder);
+        insertOrder(aOrder, conn);
     }
     
    
             
-    public static void insertCustomer(Customer aCustomer, Connection conn, String firstName, String lastName, String address, String city, String state, String zipCode) throws SQLException {
+    public static void insertCustomer(Customer aCustomer, Connection conn) throws SQLException {
         String INSERT = "Insert into CUSTOMER_TB(CUSTOMER_ID, FIRST_NAME, LAST_NAME, ADDRESS, CITY, STATE, ZIPCODE, CREATED_DT) values (?, ?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement pstmt = conn.prepareStatement(INSERT);
+        
         
         try {
         ++cust_id;
         pstmt.setInt(1, cust_id);
-        pstmt.setString(2, firstName);
-        pstmt.setString(3, lastName);
-        pstmt.setString(4, address);
-        pstmt.setString(5, city);
-        pstmt.setString(6, state);
-        pstmt.setString(7, zipCode);
+        pstmt.setString(2, aCustomer.getFirstName());
+        pstmt.setString(3, aCustomer.getLastName());
+        pstmt.setString(4, aCustomer.getAddress());
+        pstmt.setString(5, aCustomer.getCity());
+        pstmt.setString(6, aCustomer.getState());
+        pstmt.setString(7, aCustomer.getZipCode());
         pstmt.setDate(8, new java.sql.Date(System.currentTimeMillis()));
         int count = pstmt.executeUpdate();
         } catch (Exception e) {
@@ -390,7 +426,7 @@ public class OrderJFrame extends javax.swing.JFrame {
     }
 
     
-     public static void insertOrder(Connection conn, String prodDesc, int quantity, double total) throws SQLException {
+     public static void insertOrder(Order aOrder, Connection conn) throws SQLException {
         String INSERT = "Insert into ORDER_TB(ORDER_ID, CUSTOMER_ID, PRODUCT_DESC, QUANTITY, ORDER_DATE, ORDER_TOTAL) values (?, ?, ?, ?, ?, ?)";
         PreparedStatement pstmt = conn.prepareStatement(INSERT);
         
@@ -398,10 +434,10 @@ public class OrderJFrame extends javax.swing.JFrame {
         ++order_id;
         pstmt.setInt(1, order_id);
         pstmt.setInt(2, cust_id);
-        pstmt.setString(3, prodDesc);
-        pstmt.setInt(4, quantity);
+        pstmt.setString(3, aOrder.getProductDescription());
+        pstmt.setInt(4, aOrder.getQuantity());
         pstmt.setDate(5, new java.sql.Date(System.currentTimeMillis()));
-        pstmt.setDouble(6, total);
+        pstmt.setDouble(6, (aOrder.getOrderTotal()));
         int count = pstmt.executeUpdate();
         } catch (Exception e) {
             
